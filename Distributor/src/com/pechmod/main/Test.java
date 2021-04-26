@@ -16,7 +16,7 @@ import com.pechmod.gui.broadcast.BroadcastingPanel;
 import com.pechmod.gui.events.*;
 import com.pechmod.gui.receive.ReceivePanel;
 import com.pechmod.gui.receiveBroadcast.ReceiveBroadcastPanel;
-import com.pechmod.gui.send.SendPanel1;
+import com.pechmod.gui.send.SendPanel;
 import com.pechmod.utils.User;
 
 public class Test extends JFrame{
@@ -39,7 +39,7 @@ public class Test extends JFrame{
 	
 	private Home_panel homePanel;
 	private Setting settingPanel;
-	private SendPanel1 sendPanel;
+	private SendPanel sendPanel;
 	private ReceivePanel receivePanel;
 	
 	
@@ -55,9 +55,18 @@ public class Test extends JFrame{
 	public Test()
 	{
 		super("JFrame");
-		
-		
-		
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (UnsupportedLookAndFeelException e) {
+			e.printStackTrace();
+		}
+
 		setLayout(new BorderLayout());
 		mainPanel=new JPanel(new CardLayout());
 		user=new User();
@@ -104,7 +113,7 @@ public class Test extends JFrame{
 	    settingPanel=new Setting(user,mainPanel);
 	    
 	    sendRecord=new Record(Locale.US,2);
-	    sendPanel=new SendPanel1(mainPanel,sendRecord);
+	    sendPanel=new SendPanel(mainPanel,sendRecord);
 	    
 	    
 	    receivePanel=new ReceivePanel(mainPanel);
@@ -133,26 +142,9 @@ public class Test extends JFrame{
 	    
 	    setSize(340,580);
 	    centerWindowOnScreen();
-	    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
-	    try {
-			UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (UnsupportedLookAndFeelException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	    setVisible(true);
-	   
-	    
-	   
+
 	}
 	
 	
@@ -175,12 +167,9 @@ public class Test extends JFrame{
 	
 	public static void main(String[] args) {
 	
-		SwingUtilities.invokeLater(new Runnable(){
-			public void run()
-			{
+		SwingUtilities.invokeLater(()->{
 				Test test=new Test();
 				test.setResizable(false);
-			}
 		});
 
 	}

@@ -35,14 +35,14 @@ public class ServerTest extends JFrame{
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		Server server=new Server(record,new JLabel());
+		Server server=new Server(record);
 		setVisible(true);
 		send.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e)
 			{
 				try {
 					System.out.println("Sent"); 
-					server.getOuput().writeObject("Thanks for Connecting");
+					server.getOutput().writeObject("Thanks for Connecting");
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();

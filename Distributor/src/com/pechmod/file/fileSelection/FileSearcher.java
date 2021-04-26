@@ -12,8 +12,7 @@ public class FileSearcher extends JFrame {
 	public FileSearcher()
 	{
 		try {
-			//UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
-			
+
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block

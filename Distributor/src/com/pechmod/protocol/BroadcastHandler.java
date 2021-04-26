@@ -2,6 +2,7 @@ package com.pechmod.protocol;
 import java.util.*;
 import java.net.*;
 import java.io.*;
+import java.util.stream.Collectors;
 
 import com.pechmod.file.Record;
 
@@ -33,9 +34,8 @@ public class BroadcastHandler implements Runnable {
 		//write file names for client to make decisions
 		try {
 			System.out.println("Writing record");
-			oos.writeObject(record.getFileNames());
-			
-			
+      oos.writeObject(record.getFiles().stream().map(file->file.getName()).collect(Collectors.toList()));
+
 			System.out.println("Done writing record");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

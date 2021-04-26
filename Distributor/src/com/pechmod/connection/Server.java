@@ -3,14 +3,8 @@ package com.pechmod.connection;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import javax.swing.*;
 
 import com.pechmod.file.Record;
-import com.pechmod.protocol.BroadcastHandler;
 import com.pechmod.protocol.ClientReply;
 import com.pechmod.protocol.ModalFile;
 import com.pechmod.protocol.TransferModalFile;
@@ -24,151 +18,153 @@ public class Server implements Runnable{
 	private ObjectInputStream ois;
 	private ObjectOutputStream oos;
 	private Record record;
-	
-	private JLabel label;
-	public Server(Record record,JLabel label)
+	private boolean running;
+	private ClientReply reply;
+	public Server(Record record)
 	{
 		this.record=record;
-		this.label=label;
 		try
 		{
-			
-		   server=new ServerSocket(4444);
+
+			server=new ServerSocket(4444);
 		}
 		catch(IOException io)
 		{
 			io.printStackTrace();
 		}
-		
-		
+
+
 	}
-	
-	public void acceptConnection(){
-		
-			System.out.println("Looking for connection");
-		
-		try {
-			socket=server.accept();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		try {
-			setUpStreams();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		System.out.println("Done setting streams");
-		
+
+	public Record getRecord() {
+		return record;
+	}
+
+	public void setRecord(Record record) {
+		this.record = record;
+	}
+
+	public ClientReply getClientReply() {
+		return reply;
+	}
+
+	public void setClientReply(ClientReply reply) {
+		this.reply = reply;
+	}
+
+	/**
+	 * @return ClientReply after connection
+	 */
+	public ClientReply acceptConnection(){
+		System.out.println("Looking for connection");
 		ClientReply reply=null;
-		
+
+		try {
+			socket = server.accept();
+			setUpStreams();
+			System.out.println("Done setting streams");
+			running = true;
+		}
+		catch(IOException e){
+			e.printStackTrace();
+			running = false;
+			return null;
+		}
+
 		do
 		{
 			try {
-				reply=(ClientReply)ois.readObject();
+				reply=(ClientReply)ois.readObject(); // to get destination information and others details
 			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
 		}
 		while(reply==null);
-		
-LinkedList<LinkedList<ModalFile>> transferList=new LinkedList<LinkedList<ModalFile>>();
-		
+
+		return reply;
+	}
+
+	public void sendFiles(ClientReply reply){
+		LinkedList<LinkedList<ModalFile>> transferList=new LinkedList<LinkedList<ModalFile>>();
+
 		//send Files selected by client
 		for(int i=0; i<record.getSize(); i++)
 		{
 			LinkedList<ModalFile>prepareFile=new LinkedList<ModalFile>();
 			TransferModalFile.makeModalList(prepareFile, record.getFile(i), reply.getDestination());
-			
+
 			transferList.add(prepareFile);
-		
+
 		}//close for loop for making Modal Files
-		
+
 		try {
 			oos.writeObject(transferList);
-			
-			
-			label.setText("Connection: OFF");
-			this.stopThread();
+			this.stopServer();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
+
 	}
 
-	
+
 	public void setUpStreams()throws IOException
 	{
-		
-			
-		 ois=new ObjectInputStream(socket.getInputStream());
-		 
-		 oos=new ObjectOutputStream(socket.getOutputStream());
-		 
+
+		ois=new ObjectInputStream(socket.getInputStream());
+		oos=new ObjectOutputStream(socket.getOutputStream());
 		oos.flush();
-		
-		
+
+
 	}
-	
-	public Socket getSocket()
-	{
-		return socket;
+
+	public void setRunning(boolean running){
+		this.running = running;
 	}
-	
-	public ObjectOutputStream getOuput()
+	public boolean isRunning() {
+		return running;
+	}
+
+
+	public ObjectOutputStream getOutput()
 	{
 		return oos;
 	}
-	
-	public ObjectInputStream getInput()
-	{
-		return ois;
-	}
-	
+
 	public void closeConnections()
 	{
 		try {
-			
+
 			if (socket!=null) {
 				oos.close();
 				ois.close();
 				socket.close();
-				socket=null;
 			}
-			server=null;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 	}
 	@Override
 	public void run() {
-		// TODO Auto-generated method stub
-		acceptConnection();
-		
+		reply = acceptConnection();
+		sendFiles(reply);
 	}
-	
-	
-	public void stopThread()
+
+
+	public void stopServer()
 	{
 		try {
 			server.close();
+			running = false;
 			closeConnections();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			closeConnections();
 			e.printStackTrace();
 		}
-		
-		
+
+
 	}
 }

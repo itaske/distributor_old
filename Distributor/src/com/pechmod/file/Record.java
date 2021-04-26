@@ -9,8 +9,7 @@ import java.io.*;
 
 public class Record implements Serializable {
 
-	private LinkedList<File>collection;
-	private LinkedList<String>fileNames;
+	private LinkedList<File> files;
 	
 	private Locale locale;
 	private DefaultTableModel tableModel;
@@ -24,8 +23,7 @@ public class Record implements Serializable {
 	{
 		this.locale=locale;
 		this.num=num;
-		collection=new LinkedList<File>();
-		fileNames=new LinkedList<String>();
+		files=new LinkedList<File>();
 		
 	//	ResourceBundle resources=ResourceBundle.getBundle("StringsAndLabels",locale);
 		
@@ -47,8 +45,7 @@ public class Record implements Serializable {
 	public void addFile(File file)
 	{
 		if (file!=null) {
-			collection.add(file);
-			fileNames.add(file.getName());
+			files.add(file);
 			addRow(file);
 		}
 	}
@@ -56,34 +53,28 @@ public class Record implements Serializable {
 	
 	public void removeFile(int number)
 	{
-		if(number>=0 && number<collection.size())
+		if(number>=0 && number<files.size())
 			{
-			fileNames.remove(number);
-			collection.remove(number);
+				files.remove(number);
 			}
 	}
 	
 	public File getFile(int number)
 	{
-		if(number>=0 && number<collection.size())
-			return collection.get(number);
+		if(number>=0 && number<files.size())
+			return files.get(number);
 		return null;
 	}
 	
-	
-	
-	public LinkedList<String> getFileNames()
-	{
-		return fileNames;
-	}
+
 	public LinkedList<File> getFiles()
 	{
-		return collection;
+		return files;
 	}
 	
 	public int getSize()
 	{
-		return collection.size();
+		return files.size();
 	}
 	
 
@@ -91,7 +82,7 @@ public class Record implements Serializable {
 	public void addRow(File file)
 	{
 		
-		Object object[]={new String(file.getName()),new String ((file.length()/Math.pow(10,6))+" MB"),new Boolean(false)};
+		Object object[]={file.getName(), file.length()/Math.pow(10,6)+" MB",false};
 		
 		SwingUtilities.invokeLater(new Runnable(){
 			public void run(){
@@ -117,7 +108,6 @@ public class Record implements Serializable {
 				   }
 				catch(ArrayIndexOutOfBoundsException ai)
 				{
-					ai.printStackTrace();
 					Toolkit.getDefaultToolkit().beep();
 					JOptionPane.showMessageDialog(null,"Please Select a Row","Error Selection",JOptionPane.ERROR_MESSAGE);
 					
@@ -159,7 +149,7 @@ public class Record implements Serializable {
 	
 	public void clear()
 	{
-		for(int i=0; i<table.getRowCount(); i++)
+		for(int i=0; i<table.getRowCount(); ) // no need for incrementing i cos it table.getRowCount updates
 		{
 			tableModel.removeRow(i);
 			removeFile(i);

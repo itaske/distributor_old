@@ -28,8 +28,6 @@ public class NetworkBuilder {
 				
 			}
 			
-			
-			
 		} catch (IOException e) {
 			
 			e.printStackTrace();
